@@ -5,7 +5,7 @@ namespace Repository
 {
     public class CachedRepository : IRepository, ICache
     {
-        private readonly Dictionary<string, string> _cache = new Dictionary<string, string>();
+        public Dictionary<string, string> Cache { get; } = new Dictionary<string, string>();
         private readonly IRepository _repository;
 
         public CachedRepository(IRepository repository)
@@ -18,12 +18,12 @@ namespace Repository
         public async Task StoreAsync(string name, string phoneNumber)
         {
             await _repository.StoreAsync(name, phoneNumber);
-            _cache[name] = phoneNumber;
+            Cache[name] = phoneNumber;
         }
 
         public async Task<string?> GetAsync(string name)
         {
-            if (_cache.TryGetValue(name, out var phoneNumber))
+            if (Cache.TryGetValue(name, out var phoneNumber))
             {
                 return phoneNumber;
             }
@@ -32,7 +32,7 @@ namespace Repository
 
             if (phoneNumber != null)
             {
-                _cache[name] = phoneNumber;
+                Cache[name] = phoneNumber;
             }
             
             return phoneNumber;

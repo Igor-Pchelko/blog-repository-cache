@@ -1,0 +1,32 @@
+version: '2'
+services:
+  #
+  # MSSQL
+  #
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "1234567_A"
+      MSSQL_PID: Express
+  #
+  # Wait for MSSQL and create phone book database
+  #
+  mssql-init:
+    depends_on:
+      - "mssql"
+    image: mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+    environment:
+      MSSQL_USERNAME: "sa"
+      MSSQL_PASSWORD: "1234567_A"
+      ENV: "local"
+      DATABASE: "phonebookdb"
+    command: >
+      bash -c "cd /tmp ;
+        wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && (echo \"080e61a7de8f2dc77b4a2bb772fab18d wait-for-it.sh\" | md5sum -c -) &&
+        chmod u+x wait-for-it.sh &&
+        ./wait-for-it.sh mssql:1433 && sleep 2 &&
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U $${MSSQL_USERNAME} -P $${MSSQL_PASSWORD} -Q \"CREATE DATABASE [$$DATABASE]\"
+        "

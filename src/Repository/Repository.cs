@@ -1,4 +1,4 @@
-using System.Data.SQLite;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
 
@@ -7,22 +7,23 @@ namespace Repository
     public class Repository : IRepository
     {
         private const string TableName = "phonebook";
-        
-        private SQLiteConnection CreateConnection()
+
+        private SqlConnection CreateConnection()
         {
-            var connectionString = $"Data Source=repository.sqlite;Mode=Memory;Pooling=True";
-            return new SQLiteConnection(connectionString);
+            const string connectionString = "Server=tcp:localhost,1433;Initial Catalog=phonebookdb;Persist Security Info=False;User ID=sa;Password=1234567_A;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;";
+            return new SqlConnection(connectionString);
         }
 
         public async Task CreateRepositoryAsync()
         {
             var sql = $@"
-                CREATE TABLE IF NOT EXISTS {TableName} (
-		                name NVARCHAR(255),
-                        phoneNumber NVARCHAR(255),
-		                PRIMARY KEY( [name] )
-	                );
-                ";
+            IF object_id('{TableName}', 'U') is null
+	            CREATE TABLE {TableName} (
+                    name NVARCHAR(255),
+                    phoneNumber NVARCHAR(255),
+		            PRIMARY KEY( [name] )
+	            );
+            ";
 
             await using var connection = CreateConnection();
             await connection.ExecuteAsync(sql);
@@ -31,12 +32,23 @@ namespace Repository
         public async Task StoreAsync(string name, string phoneNumber)
         {
             var sql = $@"
-                INSERT INTO {TableName} (name, phoneNumber)
-		            VALUES(@Name, @PhoneNumber)
-                ON CONFLICT (name) DO UPDATE SET 
-                    phoneNumber = excluded.phoneNumber;
-                ";
-
+                MERGE INTO [{TableName}] WITH(HOLDLOCK) AS TARGET 
+                USING (
+                  VALUES
+                    (@Name, @PhoneNumber)
+                ) AS SOURCE (
+                   [Name], [PhoneNumber]
+                ) 
+                ON TARGET.[Name] = SOURCE.[Name] AND TARGET.[PhoneNumber] = SOURCE.[PhoneNumber]
+                WHEN MATCHED THEN UPDATE SET
+                  TARGET.[PhoneNumber] = SOURCE.[PhoneNumber]
+                WHEN NOT MATCHED BY TARGET THEN INSERT (
+                  [Name], [PhoneNumber]
+                ) VALUES (
+                  SOURCE.[Name], SOURCE.[PhoneNumber]
+                );
+            ";
+            
             await using var connection = CreateConnection();
             await connection.ExecuteAsync(sql, new { Name = name, PhoneNumber = phoneNumber });
         }

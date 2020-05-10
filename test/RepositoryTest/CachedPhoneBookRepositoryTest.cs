@@ -17,7 +17,7 @@ namespace Repository
             
             // Act
             await cachedRepository.CreateRepositoryAsync();
-            await cachedRepository.StoreAsync(name, phoneNumber);
+            await cachedRepository.StorePhoneNumberAsync(name, phoneNumber);
             var resultPhoneNumber = await cachedRepository.GetPhoneNumberAsync(name);
             
             // Assert
@@ -39,8 +39,8 @@ namespace Repository
             await cachedRepository.CreateRepositoryAsync();
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await cachedRepository.StoreAsync(name1, phoneNumber1);
-                await cachedRepository.StoreAsync(name2, phoneNumber2);
+                await cachedRepository.StorePhoneNumberAsync(name1, phoneNumber1);
+                await cachedRepository.StorePhoneNumberAsync(name2, phoneNumber2);
 
                 Assert.False(cachedRepository.Cache.TryGetValue(name1, out _));
                 Assert.False(cachedRepository.Cache.TryGetValue(name2, out _));

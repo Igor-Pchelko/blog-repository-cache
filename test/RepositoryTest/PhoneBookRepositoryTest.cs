@@ -15,7 +15,7 @@ namespace Repository
             
             // Act
             await repository.CreateRepositoryAsync();
-            await repository.StoreAsync(name, phoneNumber);
+            await repository.StorePhoneNumberAsync(name, phoneNumber);
             var resultPhoneNumber = await repository.GetPhoneNumberAsync(name);
             
             // Assert

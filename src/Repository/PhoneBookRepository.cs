@@ -29,7 +29,7 @@ namespace Repository
             await connection.ExecuteAsync(sql);
         }
 
-        public async Task StoreAsync(string name, string phoneNumber)
+        public async Task StorePhoneNumberAsync(string name, string phoneNumber)
         {
             var sql = $@"
                 MERGE INTO [{TableName}] WITH(HOLDLOCK) AS TARGET 

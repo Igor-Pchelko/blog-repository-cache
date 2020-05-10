@@ -16,9 +16,9 @@ namespace Repository
 
         public Task CreateRepositoryAsync() => _phoneBookRepository.CreateRepositoryAsync();
 
-        public async Task StoreAsync(string name, string phoneNumber)
+        public async Task StorePhoneNumberAsync(string name, string phoneNumber)
         {
-            await _phoneBookRepository.StoreAsync(name, phoneNumber);
+            await _phoneBookRepository.StorePhoneNumberAsync(name, phoneNumber);
 
             if (Transaction.Current != null)
             {

@@ -7,10 +7,10 @@ namespace Repository
         // Creates database table.
         Task CreateRepositoryAsync();
         
-        // Update or insert phone number for specified name.
-        Task StoreAsync(string name, string phoneNumber);
+        // Updates or inserts phone number for the specified name.
+        Task StorePhoneNumberAsync(string name, string phoneNumber);
 
-        // Return phone number for specified name.
+        // Gets phone number for the specified name.
         Task<string?> GetPhoneNumberAsync(string name);
     }
 }

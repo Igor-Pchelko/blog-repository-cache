@@ -4,7 +4,7 @@ using Dapper;
 
 namespace Repository
 {
-    public class Repository : IRepository
+    public class PhoneBookRepository : IPhoneBookRepository
     {
         private const string TableName = "phonebook";
 
@@ -53,7 +53,7 @@ namespace Repository
             await connection.ExecuteAsync(sql, new { Name = name, PhoneNumber = phoneNumber });
         }
 
-        public async Task<string?> GetAsync(string name)
+        public async Task<string?> GetPhoneNumberAsync(string name)
         {
             var sql = $@"
                 SELECT phoneNumber FROM {TableName} 
